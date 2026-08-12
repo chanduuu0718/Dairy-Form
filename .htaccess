@@ -39,11 +39,6 @@ Options -Indexes
     Require all denied
 </FilesMatch>
 
-# Protect the config directory from direct access.
-<Directory "config">
-    Require all denied
-</Directory>
-
 # Cache static assets.
 <IfModule mod_expires.c>
     ExpiresActive On
