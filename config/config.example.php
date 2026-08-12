@@ -30,14 +30,12 @@ define('ROOT_PATH', dirname(__DIR__) . '/');
 define('UPLOADS_PATH', ROOT_PATH . 'uploads/');
 define('UPLOADS_URL', rtrim(SITE_URL, '/') . '/uploads');
 
-// Cashfree Payments. Keep these values out of source control.
-define('CASHFREE_MODE', getenv('CASHFREE_MODE') ?: 'TEST');
+// Cashfree Payments: TEST/SANDBOX ONLY for this project stage.
+// Do not switch this to production until live-payment approval and testing are complete.
+define('CASHFREE_MODE', 'TEST');
 define('CASHFREE_APP_ID', getenv('CASHFREE_APP_ID') ?: '');
 define('CASHFREE_SECRET_KEY', getenv('CASHFREE_SECRET_KEY') ?: '');
-define(
-    'CASHFREE_API_URL',
-    CASHFREE_MODE === 'TEST' ? 'https://sandbox.cashfree.com/pg' : 'https://api.cashfree.com/pg'
-);
+define('CASHFREE_API_URL', 'https://sandbox.cashfree.com/pg');
 
 // Load shared application code.
 require_once ROOT_PATH . 'config/database.php';
