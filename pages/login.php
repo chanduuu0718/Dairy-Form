@@ -117,7 +117,7 @@ $(document).ready(function() {
 
     function showOtpStep() {
         $('#otp-input-group').removeClass('hidden');
-        $('#otp-code').trigger('focus');
+        $('[name="otp_code"]').trigger('focus');
         startOtpCountdown(60);
     }
 
