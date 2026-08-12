@@ -69,13 +69,12 @@ if (!empty($address)) {
     );
 }
 
-// Login the user
-$token = Auth::loginUser($userId);
+// Login the user; the HttpOnly auth cookie carries the session token.
+Auth::loginUser($userId);
 
 jsonResponse([
     'success' => true,
     'message' => 'Registration successful!',
-    'token' => $token,
     'user' => [
         'id' => $userId,
         'name' => $name,
