@@ -46,12 +46,11 @@ if (!hash_equals((string)$user['otp_code'], (string)$otp)) {
 
 $db->update("UPDATE users SET otp_code = NULL, otp_expires_at = NULL, is_verified = 1 WHERE id = ?", [$user['id']], 'i');
 
-$token = Auth::loginUser($user['id'], $user['role']);
+Auth::loginUser($user['id'], $user['role']);
 
 jsonResponse([
     'success' => true,
     'message' => 'OTP verified successfully!',
-    'token' => $token,
     'user' => [
         'id' => $user['id'],
         'name' => $user['name'],
