@@ -6,17 +6,14 @@
 
 class Auth {
 
-    // Hash password
     public static function hashPassword($password) {
-        return password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
+        return password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
     }
 
-    // Verify password
     public static function verifyPassword($password, $hash) {
         return password_verify($password, $hash);
     }
 
-    // Generate JWT Token
     public static function generateToken($userId, $role = 'customer') {
         $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
         $payload = json_encode([
@@ -34,7 +31,6 @@ class Auth {
         return $base64Header . '.' . $base64Payload . '.' . $base64Signature;
     }
 
-    // Verify JWT Token
     public static function verifyToken($token) {
         $parts = explode('.', $token);
         if (count($parts) !== 3) return false;
@@ -47,33 +43,29 @@ class Auth {
         if (!hash_equals($expectedSignature, $base64Signature)) return false;
 
         $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $base64Payload)), true);
-
+        if (!is_array($payload) || empty($payload['user_id']) || empty($payload['exp'])) return false;
         if ($payload['exp'] < time()) return false;
 
         return $payload;
     }
 
-    // Get token from request
     public static function getTokenFromRequest() {
-        // Check Authorization header
-        $headers = getallheaders();
-        if (isset($headers['Authorization'])) {
-            if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        foreach ($headers as $name => $value) {
+            if (strtolower($name) === 'authorization' && preg_match('/^Bearer\s+(\S+)$/i', $value, $matches)) {
                 return $matches[1];
             }
         }
-        // Check cookie
+
         if (isset($_COOKIE['auth_token'])) {
             return $_COOKIE['auth_token'];
         }
-        // Check session
         if (isset($_SESSION['auth_token'])) {
             return $_SESSION['auth_token'];
         }
         return null;
     }
 
-    // Get authenticated user
     public static function getUser() {
         $token = self::getTokenFromRequest();
         if (!$token) return null;
@@ -82,22 +74,22 @@ class Auth {
         if (!$payload) return null;
 
         $db = Database::getInstance();
-        $user = $db->fetchOne("SELECT id, name, phone, email, role, avatar, is_verified, created_at FROM users WHERE id = ?", [$payload['user_id']], 'i');
-        return $user;
+        return $db->fetchOne(
+            "SELECT id, name, phone, email, role, avatar, is_verified, created_at FROM users WHERE id = ?",
+            [$payload['user_id']],
+            'i'
+        );
     }
 
-    // Check if logged in
     public static function isLoggedIn() {
         return self::getUser() !== null;
     }
 
-    // Check if admin
     public static function isAdmin() {
         $user = self::getUser();
         return $user && $user['role'] === 'admin';
     }
 
-    // Require authentication (for API)
     public static function requireAuth() {
         $user = self::getUser();
         if (!$user) {
@@ -106,7 +98,6 @@ class Auth {
         return $user;
     }
 
-    // Require admin (for API)
     public static function requireAdmin() {
         $user = self::requireAuth();
         if ($user['role'] !== 'admin') {
@@ -115,9 +106,22 @@ class Auth {
         return $user;
     }
 
-    // Login user (set session & cookie)
+    private static function setAuthCookie($token, $expires) {
+        $secure = !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off';
+        setcookie('auth_token', $token, [
+            'expires' => $expires,
+            'path' => '/',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
+
     public static function loginUser($userId, $role = 'customer') {
-        // Merge session-based cart items into user's cart
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
+
         $sessionId = session_id();
         if ($sessionId) {
             $db = Database::getInstance();
@@ -135,6 +139,7 @@ class Auth {
                         "UPDATE cart_items SET quantity = quantity + ? WHERE id = ?",
                         [$item['quantity'], $existing['id']], 'ii'
                     );
+                    $db->update("DELETE FROM cart_items WHERE session_id = ? AND product_id = ? AND user_id IS NULL", [$sessionId, $item['product_id']], 'si');
                 } else {
                     $db->update(
                         "UPDATE cart_items SET user_id = ?, session_id = NULL WHERE session_id = ? AND product_id = ?",
@@ -142,31 +147,28 @@ class Auth {
                     );
                 }
             }
-            // Clean up remaining session cart items
-            $db->update("DELETE FROM cart_items WHERE session_id = ? AND user_id IS NULL", [$sessionId], 's');
         }
 
         $token = self::generateToken($userId, $role);
         $_SESSION['auth_token'] = $token;
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_role'] = $role;
-        setcookie('auth_token', $token, time() + JWT_EXPIRY, '/', '', false, true);
+        self::setAuthCookie($token, time() + JWT_EXPIRY);
         return $token;
     }
 
-    // Logout user
     public static function logout() {
         unset($_SESSION['auth_token'], $_SESSION['user_id'], $_SESSION['user_role']);
-        setcookie('auth_token', '', time() - 3600, '/', '', false, true);
-        session_destroy();
+        self::setAuthCookie('', time() - 3600);
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
     }
 
-    // Get current user ID from session
     public static function getCurrentUserId() {
         return $_SESSION['user_id'] ?? null;
     }
 
-    // Get current user role from session
     public static function getCurrentUserRole() {
         return $_SESSION['user_role'] ?? null;
     }
