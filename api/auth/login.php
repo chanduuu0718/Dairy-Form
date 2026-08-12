@@ -38,12 +38,11 @@ if (!$user || !Auth::verifyPassword($password, $user['password'])) {
     jsonResponse(['success' => false, 'message' => 'Invalid credentials'], 401);
 }
 
-$token = Auth::loginUser($user['id'], $user['role']);
+Auth::loginUser($user['id'], $user['role']);
 
 jsonResponse([
     'success' => true,
     'message' => 'Login successful!',
-    'token' => $token,
     'user' => [
         'id' => $user['id'],
         'name' => $user['name'],
