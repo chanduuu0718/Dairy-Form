@@ -17,8 +17,12 @@ if (!$data) $data = $_POST;
 $phone = sanitize($data['phone'] ?? '');
 $otp = sanitize($data['otp'] ?? '');
 
-if (!isValidPhone($phone) || empty($otp)) {
-    jsonResponse(['success' => false, 'message' => 'Phone and OTP are required'], 422);
+if (!isValidPhone($phone) || !preg_match('/^\d{6}$/', $otp)) {
+    jsonResponse(['success' => false, 'message' => 'Phone and a valid 6-digit OTP are required'], 422);
+}
+
+if (!checkRateLimit('otp_verify_' . $phone, 5, 600)) {
+    jsonResponse(['success' => false, 'message' => 'Too many verification attempts. Please request a new OTP later.'], 429);
 }
 
 $db = Database::getInstance();
@@ -27,27 +31,26 @@ $user = $db->fetchOne(
     [$phone], 's'
 );
 
-if (!$user) {
-    jsonResponse(['success' => false, 'message' => 'User not found'], 404);
-}
-
-if ($user['otp_code'] !== $otp) {
-    jsonResponse(['success' => false, 'message' => 'Invalid OTP'], 401);
+if (!$user || empty($user['otp_code']) || empty($user['otp_expires_at'])) {
+    jsonResponse(['success' => false, 'message' => 'Invalid or expired OTP'], 401);
 }
 
 if (strtotime($user['otp_expires_at']) < time()) {
+    $db->update("UPDATE users SET otp_code = NULL, otp_expires_at = NULL WHERE id = ?", [$user['id']], 'i');
     jsonResponse(['success' => false, 'message' => 'OTP has expired'], 401);
 }
 
-// Clear OTP & mark verified
+if (!hash_equals((string)$user['otp_code'], (string)$otp)) {
+    jsonResponse(['success' => false, 'message' => 'Invalid OTP'], 401);
+}
+
 $db->update("UPDATE users SET otp_code = NULL, otp_expires_at = NULL, is_verified = 1 WHERE id = ?", [$user['id']], 'i');
 
-$token = Auth::loginUser($user['id'], $user['role']);
+Auth::loginUser($user['id'], $user['role']);
 
 jsonResponse([
     'success' => true,
     'message' => 'OTP verified successfully!',
-    'token' => $token,
     'user' => [
         'id' => $user['id'],
         'name' => $user['name'],

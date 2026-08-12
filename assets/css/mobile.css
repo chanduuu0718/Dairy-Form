@@ -1,0 +1,449 @@
+/*
+ * PM Dairy Farm - Mobile Experience
+ * Mobile-first enhancements for customer browsing and checkout.
+ */
+
+/* Prevent accidental horizontal scrolling and make touch controls comfortable. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* Phones: compact header, readable content, and thumb-friendly actions. */
+@media (max-width: 767px) {
+  :root {
+    --section-padding: 2.5rem;
+    --header-height: 60px;
+    --header-top-height: 0px;
+  }
+
+  .container {
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
+  }
+
+  h1 { font-size: clamp(1.75rem, 8vw, 2.25rem); }
+  h2 { font-size: clamp(1.5rem, 7vw, 2rem); }
+
+  /* Hide secondary desktop-only contact strip to give products more space. */
+  .header-top {
+    display: none;
+  }
+
+  .main-nav {
+    min-height: 60px;
+  }
+
+  .nav-content {
+    min-height: 60px;
+    gap: 0.5rem;
+  }
+
+  .nav-logo {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .logo-text {
+    min-width: 0;
+  }
+
+  .logo-name {
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+
+  .logo-tagline {
+    font-size: 0.58rem;
+  }
+
+  .nav-actions {
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .nav-actions .theme-toggle,
+  .nav-actions .nav-cart,
+  .nav-actions .hamburger {
+    width: 42px;
+    height: 42px;
+  }
+
+  .nav-login-btn,
+  .user-name-short {
+    display: none;
+  }
+
+  /* Product grids: two comfortable cards per phone row. */
+  .products-grid,
+  .products-grid.grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .product-card {
+    min-width: 0;
+    border-radius: var(--radius-lg);
+  }
+
+  .product-card:hover {
+    transform: none;
+  }
+
+  .product-card-image {
+    padding-top: 100%;
+  }
+
+  .product-card-overlay {
+    display: none;
+  }
+
+  .product-card-body {
+    padding: 0.75rem 0.7rem 0.85rem;
+  }
+
+  .product-category {
+    font-size: 0.62rem;
+  }
+
+  .product-name {
+    font-size: 0.9rem;
+    min-height: 2.45em;
+  }
+
+  .product-weight {
+    font-size: 0.68rem;
+  }
+
+  .product-price-row {
+    margin-bottom: 0.65rem;
+  }
+
+  .product-price {
+    font-size: 1rem;
+  }
+
+  .product-card .btn {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.6rem 0.45rem;
+    font-size: 0.75rem;
+  }
+
+  /* Horizontal product carousels become swipe-friendly. */
+  .products-carousel {
+    padding: 0;
+  }
+
+  .carousel-btn {
+    display: none;
+  }
+
+  .carousel-track-wrapper {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .carousel-track-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel-track {
+    gap: 0.75rem;
+    width: max-content;
+    transition: none;
+  }
+
+  .carousel-track .product-card {
+    flex: 0 0 min(78vw, 270px);
+    scroll-snap-align: start;
+  }
+
+  /* Product details stack naturally on phones. */
+  .product-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .product-gallery {
+    position: static;
+  }
+
+  .gallery-main {
+    border-radius: var(--radius-lg);
+  }
+
+  .gallery-thumbs {
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gallery-thumb {
+    width: 60px;
+    height: 60px;
+  }
+
+  .product-detail-name {
+    font-size: 1.65rem;
+  }
+
+  .price-current {
+    font-size: 1.65rem;
+  }
+
+  .product-detail-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .quantity-selector {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .quantity-selector .qty-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .quantity-selector .qty-input {
+    min-width: 0;
+    flex: 1;
+    height: 48px;
+  }
+
+  .product-detail-actions .btn-add-cart {
+    min-height: 52px;
+    width: 100%;
+  }
+
+  .product-detail-meta {
+    padding: 0.85rem;
+  }
+
+  .meta-item {
+    align-items: flex-start;
+    font-size: 0.78rem;
+  }
+
+  .product-share {
+    justify-content: center;
+  }
+
+  .tab-buttons {
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+
+  .tab-buttons::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn {
+    padding: 0.75rem 1rem;
+  }
+
+  /* Cart and checkout become single-column and easy to scan. */
+  .cart-layout,
+  .checkout-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .cart-summary,
+  .checkout-summary {
+    position: static;
+    padding: 1rem;
+  }
+
+  .cart-item {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 0.75rem;
+    padding: 0.8rem;
+    align-items: start;
+  }
+
+  .cart-item img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .checkout-card {
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .checkout-card .form-row,
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .payment-option-content {
+    min-height: 56px;
+    padding: 0.8rem;
+  }
+
+  /* Authentication is optimized for one-hand phone use. */
+  .auth-section {
+    min-height: calc(100vh - 60px);
+    padding: 1.25rem 0.75rem;
+    align-items: flex-start;
+  }
+
+  .auth-card {
+    max-width: 100%;
+    padding: 1.5rem 1rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .auth-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .auth-header h1 {
+    font-size: 1.65rem;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    min-height: 48px;
+    font-size: 16px; /* prevents iOS Safari zoom on focus */
+  }
+
+  .btn {
+    min-height: 46px;
+  }
+
+  .btn-lg {
+    min-height: 52px;
+  }
+
+  .otp-input {
+    min-height: 56px;
+    font-size: 1.35rem;
+    letter-spacing: 0.4em;
+  }
+
+  /* Toasts should never cover the full mobile viewport. */
+  .toast-container {
+    top: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+    max-width: none;
+  }
+
+  .toast {
+    width: 100%;
+    padding: 0.8rem 0.9rem;
+  }
+
+  .modal {
+    padding: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    max-height: 90vh;
+    padding: 1.25rem;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  /* Floating controls avoid overlapping the mobile safe area. */
+  .whatsapp-float {
+    width: 52px;
+    height: 52px;
+    right: 0.9rem;
+    bottom: calc(0.9rem + env(safe-area-inset-bottom));
+  }
+
+  .back-to-top {
+    right: 4.8rem;
+    bottom: calc(0.95rem + env(safe-area-inset-bottom));
+    width: 42px;
+    height: 42px;
+  }
+
+  .whatsapp-tooltip {
+    display: none;
+  }
+
+  /* Confirmation pages fit narrow screens without horizontal overflow. */
+  .order-confirmation {
+    padding: 1rem 0;
+  }
+
+  .order-detail-header,
+  .order-items-list,
+  .order-totals,
+  .order-info-grid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .order-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .confirmation-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .confirmation-actions .btn {
+    width: 100%;
+  }
+}
+
+/* Very small phones. */
+@media (max-width: 380px) {
+  .container {
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+  }
+
+  .nav-actions .theme-toggle,
+  .nav-actions .nav-cart,
+  .nav-actions .hamburger {
+    width: 38px;
+    height: 38px;
+  }
+
+  .product-card-body {
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
+  }
+
+  .product-card .btn {
+    font-size: 0.7rem;
+  }
+}
+
+/* Respect users who prefer reduced motion, especially on low-powered phones. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

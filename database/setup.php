@@ -1,67 +1,79 @@
 <?php
 /**
  * Database Setup Script
- * Run this file once to create database and tables
- * URL: http://localhost/DairyForm/database/setup.php
+ * Run from the command line only.
+ *
+ * Required environment variables:
+ *   DB_HOST, DB_USER, DB_PASS, ADMIN_PHONE, ADMIN_EMAIL, ADMIN_PASSWORD
  */
 
-$host = 'localhost';
-$user = 'root';
-$pass = '';
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit('Not found');
+}
 
-echo "<h1>PM Dairy - Database Setup</h1>";
-echo "<pre style='background:#1a1a1a;color:#0f0;padding:20px;border-radius:8px;font-size:14px;max-width:800px;'>";
+$host = getenv('DB_HOST') ?: 'localhost';
+$user = getenv('DB_USER') ?: 'root';
+$pass = getenv('DB_PASS') ?: '';
+$adminPhone = getenv('ADMIN_PHONE') ?: '';
+$adminEmail = getenv('ADMIN_EMAIL') ?: '';
+$adminPassword = getenv('ADMIN_PASSWORD') ?: '';
+
+if ($adminPhone === '' || $adminEmail === '' || $adminPassword === '') {
+    fwrite(STDERR, "ADMIN_PHONE, ADMIN_EMAIL and ADMIN_PASSWORD must be set before running setup.\n");
+    exit(1);
+}
+
+if (!preg_match('/^[6-9]\d{9}$/', $adminPhone) || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+    fwrite(STDERR, "Invalid admin phone or email.\n");
+    exit(1);
+}
+
+if (strlen($adminPassword) < 12) {
+    fwrite(STDERR, "ADMIN_PASSWORD must contain at least 12 characters.\n");
+    exit(1);
+}
 
 try {
-    // Connect without database
     $conn = new mysqli($host, $user, $pass);
     if ($conn->connect_error) {
-        throw new Exception("Connection failed: " . $conn->connect_error);
+        throw new Exception('Database server connection failed.');
     }
-    echo "✓ Connected to MySQL server\n";
+    $conn->set_charset('utf8mb4');
 
-    // Read and execute SQL
     $sqlFile = __DIR__ . '/schema.sql';
     if (!file_exists($sqlFile)) {
-        throw new Exception("schema.sql not found!");
+        throw new Exception('schema.sql not found.');
     }
 
     $sql = file_get_contents($sqlFile);
-    echo "✓ Read schema.sql (" . strlen($sql) . " bytes)\n\n";
-
-    // Execute multi query
-    if ($conn->multi_query($sql)) {
-        $queryCount = 0;
-        do {
-            if ($result = $conn->store_result()) {
-                $result->free();
-            }
-            $queryCount++;
-        } while ($conn->more_results() && $conn->next_result());
-
-        echo "✓ Executed $queryCount SQL statements\n";
-    } else {
-        throw new Exception("SQL Error: " . $conn->error);
+    if (!$conn->multi_query($sql)) {
+        throw new Exception('Database schema installation failed.');
     }
 
-    echo "\n========================================\n";
-    echo "✓ DATABASE SETUP COMPLETE!\n";
-    echo "========================================\n\n";
-    echo "Database: pm_dairy\n";
-    echo "Admin Login:\n";
-    echo "  Phone: 9876543210\n";
-    echo "  Email: admin@pmdairy.com\n";
-    echo "  Password: admin123\n\n";
-    echo "Admin Panel: http://localhost/DairyForm/admin/\n";
-    echo "Website: http://localhost/DairyForm/\n";
+    do {
+        if ($result = $conn->store_result()) {
+            $result->free();
+        }
+    } while ($conn->more_results() && $conn->next_result());
+
+    // Replace the legacy seeded admin account with operator-supplied credentials.
+    $conn->query("DELETE FROM pm_dairy.users WHERE phone = '9876543210' AND email = 'admin@pmdairy.com'");
+
+    $passwordHash = password_hash($adminPassword, PASSWORD_DEFAULT);
+    $stmt = $conn->prepare(
+        "INSERT INTO pm_dairy.users (name, phone, email, password, role, is_verified)
+         VALUES (?, ?, ?, ?, 'admin', 1)"
+    );
+    $name = 'PM Dairy Admin';
+    $stmt->bind_param('ssss', $name, $adminPhone, $adminEmail, $passwordHash);
+    $stmt->execute();
+    $stmt->close();
 
     $conn->close();
-
-} catch (Exception $e) {
-    echo "✗ ERROR: " . $e->getMessage() . "\n";
+    fwrite(STDOUT, "Database setup completed successfully.\n");
+    fwrite(STDOUT, "Admin account created from supplied environment credentials.\n");
+} catch (Throwable $e) {
+    fwrite(STDERR, "Database setup failed. Check your configuration and database server logs.\n");
+    exit(1);
 }
-
-echo "</pre>";
-echo "<br><a href='/DairyForm/' style='display:inline-block;padding:12px 24px;background:#1A3C2A;color:#fff;text-decoration:none;border-radius:8px;font-family:sans-serif;'>→ Go to Website</a>";
-echo " <a href='/DairyForm/admin/' style='display:inline-block;padding:12px 24px;background:#D4A843;color:#fff;text-decoration:none;border-radius:8px;font-family:sans-serif;'>→ Go to Admin Panel</a>";
-?>
