@@ -10,7 +10,7 @@ $loggedInUser = Auth::getUser();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <title><?= isset($pageTitle) ? $pageTitle . ' | ' . SITE_NAME : SITE_NAME . ' - ' . SITE_TAGLINE ?></title>
@@ -18,26 +18,22 @@ $loggedInUser = Auth::getUser();
     <meta name="keywords" content="PM Dairy, farm fresh milk, A2 milk, desi ghee, paneer, dairy farm, Haryana dairy, organic milk">
     <meta name="author" content="PM Dairy">
 
-    <!-- Open Graph -->
     <meta property="og:title" content="<?= isset($pageTitle) ? $pageTitle : SITE_NAME ?>">
     <meta property="og:description" content="<?= isset($pageDescription) ? $pageDescription : SITE_TAGLINE ?>">
     <meta property="og:image" content="<?= ASSETS_URL ?>/images/og-image.jpg">
     <meta property="og:url" content="<?= SITE_URL ?>">
     <meta property="og:type" content="website">
 
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?= ASSETS_URL ?>/images/icons/favicon.png">
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Main CSS -->
     <link rel="stylesheet" href="<?= ASSETS_URL ?>/css/style.css">
+    <link rel="stylesheet" href="<?= ASSETS_URL ?>/css/mobile.css">
 
     <?php if (isset($extraCSS)): ?>
         <?php foreach ($extraCSS as $css): ?>
@@ -45,7 +41,6 @@ $loggedInUser = Auth::getUser();
         <?php endforeach; ?>
     <?php endif; ?>
 
-    <!-- Schema Markup -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -67,7 +62,6 @@ $loggedInUser = Auth::getUser();
 </head>
 <body class="<?= isset($bodyClass) ? $bodyClass : '' ?>">
 
-    <!-- Page Loader -->
     <div id="page-loader" class="page-loader">
         <div class="loader-content">
             <div class="loader-spinner"></div>
@@ -75,7 +69,6 @@ $loggedInUser = Auth::getUser();
         </div>
     </div>
 
-    <!-- Header -->
     <header class="site-header" id="site-header">
         <div class="header-top">
             <div class="container">
@@ -86,7 +79,7 @@ $loggedInUser = Auth::getUser();
                     </div>
                     <div class="header-social">
                         <a href="#" aria-label="Instagram"><i class="fab fa-instagram instagram-icon"></i></a>
-                        <a href="https://www.youtube.com/@PurvanchalDairyfarm" aria-label="YouTube"> <i class="fab fa-youtube youtube-icon"></i></a>
+                        <a href="https://www.youtube.com/@PurvanchalDairyfarm" aria-label="YouTube"><i class="fab fa-youtube youtube-icon"></i></a>
                         <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp whatsapp-icon"></i></a>
                     </div>
                 </div>
@@ -96,7 +89,6 @@ $loggedInUser = Auth::getUser();
         <nav class="main-nav" id="main-nav">
             <div class="container">
                 <div class="nav-content">
-                    <!-- Logo -->
                     <a href="<?= SITE_URL ?>/" class="nav-logo">
                         <span class="logo-icon">🐄</span>
                         <div class="logo-text">
@@ -105,7 +97,6 @@ $loggedInUser = Auth::getUser();
                         </div>
                     </a>
 
-                    <!-- Navigation Links -->
                     <ul class="nav-links" id="nav-links">
                         <li><a href="<?= SITE_URL ?>/" class="<?= $currentPage === 'index' ? 'active' : '' ?>">Home</a></li>
                         <li><a href="<?= SITE_URL ?>/pages/about.php" class="<?= $currentPage === 'about' ? 'active' : '' ?>">About Us</a></li>
@@ -126,20 +117,16 @@ $loggedInUser = Auth::getUser();
                         <li><a href="<?= SITE_URL ?>/pages/contact.php" class="<?= $currentPage === 'contact' ? 'active' : '' ?>">Contact</a></li>
                     </ul>
 
-                    <!-- Nav Actions -->
                     <div class="nav-actions">
-                        <!-- Dark Mode Toggle -->
                         <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
                             <i class="fas fa-moon"></i>
                         </button>
 
-                        <!-- Cart -->
-                        <a href="<?= SITE_URL ?>/pages/cart.php" class="nav-cart" id="nav-cart">
+                        <a href="<?= SITE_URL ?>/pages/cart.php" class="nav-cart" id="nav-cart" aria-label="Shopping cart">
                             <i class="fas fa-shopping-bag"></i>
                             <span class="cart-count" id="cart-count"><?= $cartCount ?></span>
                         </a>
 
-                        <!-- User -->
                         <?php if ($loggedInUser): ?>
                             <div class="nav-user has-dropdown">
                                 <button class="nav-user-btn">
@@ -163,8 +150,7 @@ $loggedInUser = Auth::getUser();
                             </a>
                         <?php endif; ?>
 
-                        <!-- Mobile Menu Toggle -->
-                        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                        <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
                             <span></span>
                             <span></span>
                             <span></span>
@@ -175,11 +161,7 @@ $loggedInUser = Auth::getUser();
         </nav>
     </header>
 
-    <!-- Mobile Menu Overlay -->
     <div class="mobile-overlay" id="mobile-overlay"></div>
-
-    <!-- Toast Container -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- Main Content Wrapper -->
     <main class="main-content">
