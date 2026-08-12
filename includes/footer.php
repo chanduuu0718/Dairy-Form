@@ -6,7 +6,6 @@
         <div class="footer-top">
             <div class="container">
                 <div class="footer-grid">
-                    <!-- About Column -->
                     <div class="footer-col">
                         <a href="<?= SITE_URL ?>/" class="footer-logo">
                             <span class="logo-icon">🐄</span>
@@ -22,8 +21,6 @@
                             <a href="https://wa.me/<?= SITE_WHATSAPP ?>" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                         </div>
                     </div>
-
-                    <!-- Quick Links -->
                     <div class="footer-col">
                         <h4 class="footer-heading">Quick Links</h4>
                         <ul class="footer-links">
@@ -36,8 +33,6 @@
                             <li><a href="<?= SITE_URL ?>/pages/blog.php">Blog</a></li>
                         </ul>
                     </div>
-
-                    <!-- Our Products -->
                     <div class="footer-col">
                         <h4 class="footer-heading">Our Products</h4>
                         <ul class="footer-links">
@@ -49,37 +44,19 @@
                             <li><a href="<?= SITE_URL ?>/pages/subscriptions.php">Subscription Plans</a></li>
                         </ul>
                     </div>
-
-                    <!-- Contact Info -->
                     <div class="footer-col">
                         <h4 class="footer-heading">Contact Us</h4>
                         <ul class="footer-contact">
-                            <li>
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span><?= SITE_ADDRESS ?></span>
-                            </li>
-                            <li>
-                                <i class="fas fa-phone-alt"></i>
-                                <a href="tel:<?= SITE_PHONE ?>"><?= SITE_PHONE ?></a>
-                            </li>
-                            <li>
-                                <i class="fab fa-whatsapp"></i>
-                                <a href="https://wa.me/<?= SITE_WHATSAPP ?>">WhatsApp Us</a>
-                            </li>
-                            <li>
-                                <i class="fas fa-envelope"></i>
-                                <a href="mailto:<?= SITE_EMAIL ?>"><?= SITE_EMAIL ?></a>
-                            </li>
-                            <li>
-                                <i class="fas fa-clock"></i>
-                                <span>Mon - Sun: 6:00 AM - 8:00 PM</span>
-                            </li>
+                            <li><i class="fas fa-map-marker-alt"></i><span><?= SITE_ADDRESS ?></span></li>
+                            <li><i class="fas fa-phone-alt"></i><a href="tel:<?= SITE_PHONE ?>"><?= SITE_PHONE ?></a></li>
+                            <li><i class="fab fa-whatsapp"></i><a href="https://wa.me/<?= SITE_WHATSAPP ?>">WhatsApp Us</a></li>
+                            <li><i class="fas fa-envelope"></i><a href="mailto:<?= SITE_EMAIL ?>"><?= SITE_EMAIL ?></a></li>
+                            <li><i class="fas fa-clock"></i><span>Mon - Sun: 6:00 AM - 8:00 PM</span></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="footer-bottom">
             <div class="container">
                 <div class="footer-bottom-content">
@@ -94,81 +71,51 @@
         </div>
     </footer>
 
-    <!-- Floating WhatsApp Button -->
     <a href="https://wa.me/<?= SITE_WHATSAPP ?>?text=Hi%20PM%20Dairy!%20I%20want%20to%20know%20about%20your%20products." target="_blank" class="whatsapp-float" id="whatsapp-float" aria-label="Chat on WhatsApp">
         <i class="fab fa-whatsapp"></i>
         <span class="whatsapp-tooltip">Chat with us!</span>
     </a>
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
 
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="back-to-top" aria-label="Back to top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
-    <!-- Auth Modal -->
     <div class="modal" id="auth-modal">
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-sm">
             <button class="modal-close" data-close-modal>&times;</button>
-            <div id="auth-modal-body">
-                <!-- Loaded dynamically -->
-            </div>
+            <div id="auth-modal-body"></div>
         </div>
     </div>
 
     <script>
 document.addEventListener("DOMContentLoaded", function () {
-
     const track = document.querySelector(".slider-track");
     const cards = document.querySelectorAll(".testimonial-card");
     const dots = document.querySelectorAll(".slider-dot");
     const prevBtn = document.querySelector(".slider-prev");
     const nextBtn = document.querySelector(".slider-next");
-
+    if (!track || !cards.length || !prevBtn || !nextBtn) return;
     let currentIndex = 0;
     const totalSlides = cards.length;
-
     function updateSlider() {
         const slideWidth = cards[0].offsetWidth;
         track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
-
-        dots.forEach((dot, i) => {
-            dot.classList.toggle("active", i === currentIndex);
-        });
+        dots.forEach((dot, i) => dot.classList.toggle("active", i === currentIndex));
     }
-
-    nextBtn.addEventListener("click", () => {
-        currentIndex = (currentIndex + 1) % totalSlides;
-        updateSlider();
-    });
-
-    prevBtn.addEventListener("click", () => {
-        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-        updateSlider();
-    });
-
-    dots.forEach((dot, index) => {
-        dot.addEventListener("click", () => {
-            currentIndex = index;
-            updateSlider();
-        });
-    });
-
+    nextBtn.addEventListener("click", () => { currentIndex = (currentIndex + 1) % totalSlides; updateSlider(); });
+    prevBtn.addEventListener("click", () => { currentIndex = (currentIndex - 1 + totalSlides) % totalSlides; updateSlider(); });
+    dots.forEach((dot, index) => dot.addEventListener("click", () => { currentIndex = index; updateSlider(); }));
     window.addEventListener("resize", updateSlider);
-
 });
 </script>
 
-    <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
-    <!-- Main JavaScript -->
     <script>
         const SITE_URL = '<?= SITE_URL ?>';
         const IS_LOGGED_IN = <?= $loggedInUser ? 'true' : 'false' ?>;
         const USER_ROLE = '<?= $loggedInUser ? $loggedInUser['role'] : '' ?>';
         const CASHFREE_MODE = '<?= CASHFREE_MODE === "TEST" ? "sandbox" : "production" ?>';
     </script>
+    <!-- Purchase gate loads before main.js so unauthenticated clicks are intercepted first. -->
+    <script src="<?= ASSETS_URL ?>/js/purchase-gate.js"></script>
     <script src="<?= ASSETS_URL ?>/js/main.js"></script>
 
     <?php if (isset($extraJS)): ?>
