@@ -40,10 +40,9 @@ $db->update(
     'sss'
 );
 
-// In production, send OTP via SMS gateway (MSG91, Twilio, etc.)
-// For development, we return it in response
+// TODO: Integrate the production SMS provider here (MSG91, Twilio, etc.).
+// Never include the OTP in an HTTP response, logs, or client-side payload.
 jsonResponse([
     'success' => true,
-    'message' => 'OTP sent to your phone',
-    'otp_debug' => $otp // Remove in production
+    'message' => 'OTP sent to your phone'
 ]);
