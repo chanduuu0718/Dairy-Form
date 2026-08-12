@@ -1,14 +1,14 @@
 # PM Dairy Farm - Apache Configuration
-# Enable URL Rewriting
 
 RewriteEngine On
 RewriteBase /DairyForm/
 
-# Force HTTPS (uncomment in production)
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Force HTTPS in non-local environments. Keep localhost development on HTTP.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:|$) [NC]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Skip rewriting if the file already exists (prevents rewrite loops)
+# Skip rewriting if the file already exists.
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
@@ -19,34 +19,32 @@ RewriteRule ^api/products/([^/]+)$ api/products/detail.php?slug=$1 [NC,L,QSA]
 RewriteRule ^api/cart/?$ api/cart/index.php [NC,L,QSA]
 RewriteRule ^api/subscriptions/?$ api/subscriptions/index.php [NC,L,QSA]
 
-# Remove .php extension from URLs
+# Remove .php extension from URLs.
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
 
-# Security Headers
 <IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-XSS-Protection "1; mode=block"
-    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" "expr=%{HTTPS} == 'on'"
 </IfModule>
 
-# Prevent directory listing
+# Prevent directory listing.
 Options -Indexes
 
-# Protect sensitive files
-<FilesMatch "\.(sql|md|json|env|log)$">
-    Order Allow,Deny
-    Deny from all
+# Protect sensitive files.
+<FilesMatch "\.(sql|md|json|env|log|ini|bak|old|dist)$">
+    Require all denied
 </FilesMatch>
 
-# Protect config directory
-<Files "config/*">
-    Order Allow,Deny
-    Deny from all
-</Files>
+# Protect the config directory from direct access.
+<Directory "config">
+    Require all denied
+</Directory>
 
-# Cache static assets
+# Cache static assets.
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType image/jpeg "access plus 1 month"
@@ -58,12 +56,12 @@ Options -Indexes
     ExpiresByType font/woff2 "access plus 1 month"
 </IfModule>
 
-# GZIP Compression
+# GZIP Compression.
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
     AddOutputFilterByType DEFLATE application/javascript application/json
 </IfModule>
 
-# Max upload size
+# Max upload size.
 php_value upload_max_filesize 10M
 php_value post_max_size 12M
