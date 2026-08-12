@@ -1,0 +1,69 @@
+# PM Dairy Farm - Apache Configuration
+# Enable URL Rewriting
+
+RewriteEngine On
+RewriteBase /DairyForm/
+
+# Force HTTPS (uncomment in production)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Skip rewriting if the file already exists (prevents rewrite loops)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Clean API URLs (must be BEFORE the generic .php extension rule)
+RewriteRule ^api/auth/(.*)$ api/auth/$1.php [NC,L]
+RewriteRule ^api/products/?$ api/products/index.php [NC,L,QSA]
+RewriteRule ^api/products/([^/]+)$ api/products/detail.php?slug=$1 [NC,L,QSA]
+RewriteRule ^api/cart/?$ api/cart/index.php [NC,L,QSA]
+RewriteRule ^api/subscriptions/?$ api/subscriptions/index.php [NC,L,QSA]
+
+# Remove .php extension from URLs
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "\.(sql|md|json|env|log)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Protect config directory
+<Files "config/*">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Cache static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType font/woff2 "access plus 1 month"
+</IfModule>
+
+# GZIP Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+</IfModule>
+
+# Max upload size
+php_value upload_max_filesize 10M
+php_value post_max_size 12M
