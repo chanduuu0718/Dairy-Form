@@ -1,0 +1,2 @@
+# Database setup and schema files must not be web-accessible.
+Require all denied
