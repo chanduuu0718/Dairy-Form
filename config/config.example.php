@@ -37,6 +37,13 @@ define('CASHFREE_APP_ID', getenv('CASHFREE_APP_ID') ?: '');
 define('CASHFREE_SECRET_KEY', getenv('CASHFREE_SECRET_KEY') ?: '');
 define('CASHFREE_API_URL', 'https://sandbox.cashfree.com/pg');
 
+// SMS OTP: real SMS delivery through Twilio Messaging.
+// Keep credentials out of source control and set them as environment variables.
+define('SMS_PROVIDER', getenv('SMS_PROVIDER') ?: 'TWILIO');
+define('TWILIO_ACCOUNT_SID', getenv('TWILIO_ACCOUNT_SID') ?: '');
+define('TWILIO_AUTH_TOKEN', getenv('TWILIO_AUTH_TOKEN') ?: '');
+define('TWILIO_FROM_NUMBER', getenv('TWILIO_FROM_NUMBER') ?: '');
+
 // Load shared application code.
 require_once ROOT_PATH . 'config/database.php';
 require_once ROOT_PATH . 'includes/functions.php';
